@@ -54,6 +54,9 @@ wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(esp, secrets, status_lig
 
 ### Code ###
 
+sub_topic = "circuitpython/outgoing"
+pub_topic = "circuitpython/incoming"
+
 # Define callback methods which are called when events occur
 # pylint: disable=unused-argument, redefined-outer-name
 def connect(client, userdata, flags, rc):
@@ -61,10 +64,10 @@ def connect(client, userdata, flags, rc):
     # successfully to the broker.
     print('Connected to MQTT Broker!')
     print('Flags: {0}\n RC: {1}'.format(flags, rc))
-    # Subscribes to commands/# topic
 
-    # Publish to the default "events" topic
-    aws_iot.publish('testing','events', qos=1)
+    print("Subscribing to topic {}".format(sub_topic))
+    aws_iot.subscribe(sub_topic)
+
 
 def disconnect(client, userdata, rc):
     # This method is called when the client disconnects
@@ -74,6 +77,9 @@ def disconnect(client, userdata, rc):
 def subscribe(client, userdata, topic, granted_qos):
     # This method is called when the client subscribes to a new topic.
     print('Subscribed to {0} with QOS level {1}'.format(topic, granted_qos))
+
+    print("Publishing to topic {}".format(pub_topic))
+    aws_iot.publish(pub_topic, "hello aws!")
 
 def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a topic.
@@ -126,4 +132,4 @@ aws_iot.connect()
 #    aws_iot.loop()
 
 # Attempt to loop forever and handle network disconnection
-aws_iot.loop_blocking()
+aws_iot.loop_forever()
