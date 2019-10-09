@@ -74,6 +74,8 @@ class MQTT_CLIENT:
             assert self.cid[0] != "$", "Client ID can not start with restricted client ID prefix $."
         except:
             raise TypeError("You must provide MiniMQTT with your AWS IoT Device's Identifier as the Client ID.")
+        # Shadow-interaction topic
+        self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
         # Ensure set_certificate and set_private_key were run from ESP32SPI
         assert self.client.wifi.esp.set_psk and self.client.wifi.esp.set_cert, "Certificate and private key must be set to your AWS Device Cert and Private Key."
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
@@ -230,7 +232,7 @@ class MQTT_CLIENT:
         """
         assert hasattr(topic, "split"), "Topic must be a string"
         assert len(topic) < 256, "Topic must be less than 256 bytes!"
-        assert topic[0] != "$", "Topic can not contain restricted topic prefix $"
+        #assert topic[0] != "$", "Topic can not contain restricted topic prefix $"
         assert len(topic.split("/")) <= 9, "Topics are limited to 7 forward slashes."
 
 
@@ -244,19 +246,42 @@ class MQTT_CLIENT:
         assert qos < 2, "AWS IoT does not support subscribing with QoS 2."
         self.validate_topic(topic)
         self.client.subscribe(topic, qos)
-    
-    # TODO: Input validation for integers passed in as payload?? Does AWS care?
+
     def publish(self, topic, payload, qos=1):
         """Publishes to a AWS IoT Topic.
         :param str topic: MQTT topic to publish to.
         :param str payload: Data to publish to topic.
         :param int payload: Data to publish to topic.
+        :param float payload: Data to publish to topic.
         :param json payload: JSON-formatted data to publish to topic.
         :param int qos: Quality of service level for publishing.
 
         """
+
         assert qos < 2, "AWS IoT does not support publishing with QoS 2."
         self.validate_topic(topic)
+        if isinstance(payload, int or float):
+            payload = str(payload)
         self.client.publish(topic, payload, qos=qos)
 
-    # TODO: Add aws shadow config operations here, assemble shadow topics from client_id 
+    # AWS IoT Device Shadow Service
+    def shadow_update(self, state_document):
+        """Publishes a request state document to update the device's shadow.
+        :param json state_document: JSON-formatted state document.
+
+        """
+        topic = self.shadow_topic+"/update"
+        print(topic)
+        self.client.publish(topic, state_document, qos=1)
+    
+    def shadow_get(self):
+        """Publishes an empty message to shadow get topic to get the device's shadow.
+
+        """
+        self.client.publish(self.shadow_topic+"/get", "ignore")
+    
+    def shadow_delete(self):
+        """Publishes an empty message to the shadow delete topic to delete a device's shadow
+
+        """
+        self.client.publish(self.shadow_topic+"/delete", "ignore")
