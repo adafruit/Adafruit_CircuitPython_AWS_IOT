@@ -286,9 +286,7 @@ class MQTT_CLIENT:
         :param int qos: Optional quality of service level.
 
         """
-        topic = self.shadow_topic+"/update"
-        print(topic)
-        self.client.publish(topic, state_document, qos)
+        self.client.publish(self.shadow_topic+"/update", state_document, qos)
     
     def shadow_get(self):
         """Publishes an empty message to shadow get topic to get the device's shadow.
