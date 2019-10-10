@@ -144,7 +144,6 @@ class MQTT_CLIENT:
         self.connected_to_aws = True
 
     # MiniMQTT Callback Handlers
-
     # pylint: disable=not-callable, unused-argument
     def _on_connect_mqtt(self, client, userdata, flag, ret_code):
         """Runs when code calls on_connect.
@@ -205,7 +204,6 @@ class MQTT_CLIENT:
             self.on_unsubscribe(self, user_data, topic, pid)
 
     # MiniMQTT Network Control Flow
-
     def loop(self):
         """ Starts a synchronous message loop which maintains connection with AWS IoT.
         Must be called within the keep_alive timeout specified to init.
@@ -229,7 +227,6 @@ class MQTT_CLIENT:
         if self.connected_to_aws:
             self.client.loop_forever()
 
-
     @staticmethod
     def validate_topic(topic):
         """Validates if user-provided pub/sub topics adhere to AWS Service Limits.
@@ -239,9 +236,7 @@ class MQTT_CLIENT:
         """
         assert hasattr(topic, "split"), "Topic must be a string"
         assert len(topic) < 256, "Topic must be less than 256 bytes!"
-        #assert topic[0] != "$", "Topic can not contain restricted topic prefix $"
         assert len(topic.split("/")) <= 9, "Topics are limited to 7 forward slashes."
-
 
     # MiniMQTT Pub/Sub Methods, for usage with AWS IoT
     def subscribe(self, topic, qos=1):
@@ -286,13 +281,12 @@ class MQTT_CLIENT:
         """
         self.client.subscribe(self.shadow_topic+"/update/#", qos)
 
-    def shadow_update(self, state_document, qos=1):
+    def shadow_update(self, document):
         """Publishes a request state document to update the device's shadow.
         :param json state_document: JSON-formatted state document.
-        :param int qos: Optional quality of service level.
 
         """
-        self.client.publish(self.shadow_topic+"/update", state_document, qos)
+        self.client.publish(self.shadow_topic+"/update", document)
 
     def shadow_get(self):
         """Publishes an empty message to shadow get topic to get the device's shadow.
