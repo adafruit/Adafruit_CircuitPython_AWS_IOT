@@ -1,3 +1,4 @@
+import json
 import board
 import busio
 from digitalio import DigitalInOut
@@ -5,9 +6,8 @@ import neopixel
 from adafruit_esp32spi import adafruit_esp32spi
 from adafruit_esp32spi import adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
-import json
 from adafruit_minimqtt import MQTT
-from adafruit_aws_iot import MQTT_CLIENT, AWS_IOT_ERROR
+from adafruit_aws_iot import MQTT_CLIENT
 
 ### WiFi ###
 
@@ -25,7 +25,6 @@ except ImportError:
     print("Certificate and private key data is kept in certificates.py, \
            please add them there!")
     raise
-
 
 # If you are using a board with pre-defined ESP32 Pins:
 esp32_cs = DigitalInOut(board.ESP_CS)
@@ -64,6 +63,7 @@ def connect(client, userdata, flags, rc):
     print('Connected to MQTT Broker!')
     print('Flags: {0}\n RC: {1}'.format(flags, rc))
 
+    # Subscribe to topic circuitpython/aws
     print("Subscribing to topic {}".format(topic))
     aws_iot.subscribe(topic)
 
@@ -76,9 +76,10 @@ def subscribe(client, userdata, topic, granted_qos):
     # This method is called when the client subscribes to a new topic.
     print('Subscribed to {0} with QOS level {1}'.format(topic, granted_qos))
 
-    # Publish some data to topic
-    aws_iot.publish(topic, "Hello from AWS IoT CircuitPython")
-
+    # Create a json-formatted message
+    message = {"message": "Hello from AWS IoT CircuitPython"}
+    # Publish message to topic
+    aws_iot.publish(topic, json.dumps(message))
 
 def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a topic.
