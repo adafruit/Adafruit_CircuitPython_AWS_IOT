@@ -64,23 +64,27 @@ class MQTT_CLIENT:
         if "MQTT" in str(type(mmqttclient)):
             self.client = mmqttclient
         else:
-            raise TypeError("This class requires a preconfigured MiniMQTT object, please create one.")
+            raise TypeError("This class requires a preconfigured MiniMQTT object, \
+                                please create one.")
         # TODO: Verify ESP32 co-processor firmware version <= 1.4.0 to support cert/key pairs.
         # bytearray(b'1.4.0\x00')
-        fw_ver = self.client.wifi.esp.firmware_version
+        #fw_ver = self.client.wifi.esp.firmware_version
         # Verify MiniMQTT client object configuration
         try:
             self.cid = self.client.client_id
             assert self.cid[0] != "$", "Client ID can not start with restricted client ID prefix $."
         except:
-            raise TypeError("You must provide MiniMQTT with your AWS IoT Device's Identifier as the Client ID.")
+            raise TypeError("You must provide MiniMQTT with your AWS IoT Device's Identifier \
+                                as the Client ID.")
         # Shadow-interaction topic
         self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
         # Ensure set_certificate and set_private_key were run from ESP32SPI
-        assert self.client.wifi.esp.set_psk and self.client.wifi.esp.set_cert, "Certificate and private key must be set to your AWS Device Cert and Private Key."
+        assert self.client.wifi.esp.set_psk and self.client.wifi.esp.set_cert, "Certificate \
+            and private key must be set to your AWS Device Cert and Private Key."
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
         # https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
-        assert 30 <= keep_alive <=1200, "Keep_Alive timer interval must be between 30 and 1200 seconds"
+        assert 30 <= keep_alive <= 1200, "Keep_Alive timer \
+            interval must be between 30 and 1200 seconds"
         self.keep_alive = keep_alive
         # User-defined MQTT callback methods must be init'd to None
         self.on_connect = None
@@ -105,7 +109,7 @@ class MQTT_CLIENT:
 
     @property
     def is_connected(self):
-        """Returns if MQTT_CLIENT is connected to AWS IoT MQTT Broker. 
+        """Returns if MQTT_CLIENT is connected to AWS IoT MQTT Broker
 
         """
         return self.connected_to_aws
@@ -116,8 +120,8 @@ class MQTT_CLIENT:
         """
         try:
             self.client.disconnect()
-        except MMQTTException as e:
-            raise AWS_IOT_ERROR('Error disconnecting with AWS IoT: ', e)
+        except MMQTTException as error:
+            raise AWS_IOT_ERROR('Error disconnecting with AWS IoT: ', error)
         self.connected_to_aws = False
         # Reset user-defined callback methods to None
         self.on_connect = None
@@ -129,44 +133,45 @@ class MQTT_CLIENT:
 
     def connect(self, clean_session=True):
         """Connects to Amazon AWS IoT MQTT Broker with Client ID.
-        :param bool clean_session: Establishes a persistent/clean session with AWS IoT's MQTT broker.
+        :param bool clean_session: Establishes a persistent/clean session with
+                                    AWS IoT's MQTT broker.
 
         """
         try:
-            self.client.connect()
-        except MMQTTException as e:
-            raise AWS_IOT_ERROR('Error connecting to AWS IoT: ', e)
-        self.connected_to_aws=True
-    
+            self.client.connect(clean_session)
+        except MMQTTException as error:
+            raise AWS_IOT_ERROR('Error connecting to AWS IoT: ', error)
+        self.connected_to_aws = True
+
     # MiniMQTT Callback Handlers
 
-    # pylint: disable=not-callable
-    def _on_connect_mqtt(self, client, userdata, flag, rc):
+    # pylint: disable=not-callable, unused-argument
+    def _on_connect_mqtt(self, client, userdata, flag, ret_code):
         """Runs when code calls on_connect.
         :param MiniMQTT client: MiniMQTT client object.
         :param str user_data: User data from broker
         :param int flag: QoS flag from broker.
-        :param int rc: Return code from broker.
+        :param int ret_code: Return code from broker.
 
         """
         self.connected_to_aws = True
         # Call the on_connect callback if defined in code
         if self.on_connect is not None:
-            self.on_connect(self, userdata, flag, rc)
+            self.on_connect(self, userdata, flag, ret_code)
 
-    # pylint: disable=not-callable
-    def _on_disconnect_mqtt(self, client, userdata, flag, rc):
+    # pylint: disable=not-callable, unused-argument
+    def _on_disconnect_mqtt(self, client, userdata, flag, ret_code):
         """Runs when code calls on_disconnect.
         :param MiniMQTT client: MiniMQTT client object.
         :param str user_data: User data from broker
         :param int flag: QoS flag from broker.
-        :param int rc: Return code from broker.
+        :param int ret_code: Return code from broker.
 
         """
         self.connected_to_aws = False
         # Call the on_connect callback if defined in code
         if self.on_connect is not None:
-            self.on_connect(self, userdata, flag, rc)
+            self.on_connect(self, userdata, flag, ret_code)
 
     # pylint: disable=not-callable
     def _on_message_mqtt(self, client, topic, payload):
@@ -187,10 +192,11 @@ class MQTT_CLIENT:
         :param str user_data: User data from broker
         :param str topic: Desired MQTT topic.
         param int qos: Quality of service level for topic, from broker.
+
         """
         if self.on_subscribe is not None:
             self.on_subscribe(self, user_data, topic, qos)
-    
+
     # pylint: disable=not-callable
     def _on_unsubscribe_mqtt(self, client, user_data, topic, pid):
         """Runs when the client calls on_unsubscribe.
@@ -214,7 +220,7 @@ class MQTT_CLIENT:
         """
         if self.connected_to_aws:
             self.client.loop()
-    
+
     def loop_forever(self):
         """Begins a blocking, asynchronous message loop.
         This method handles network connection/disconnection.
@@ -224,7 +230,8 @@ class MQTT_CLIENT:
             self.client.loop_forever()
 
 
-    def validate_topic(self, topic):
+    @staticmethod
+    def validate_topic(topic):
         """Validates if user-provided pub/sub topics adhere to AWS Service Limits.
         https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
         :param str topic: Desired topic to validate
@@ -257,7 +264,6 @@ class MQTT_CLIENT:
         :param int qos: Quality of service level for publishing.
 
         """
-
         assert qos < 2, "AWS IoT does not support publishing with QoS 2."
         self.validate_topic(topic)
         if isinstance(payload, int or float):
@@ -287,13 +293,13 @@ class MQTT_CLIENT:
 
         """
         self.client.publish(self.shadow_topic+"/update", state_document, qos)
-    
+
     def shadow_get(self):
         """Publishes an empty message to shadow get topic to get the device's shadow.
 
         """
         self.client.publish(self.shadow_topic+"/get", json.dumps({"message": "ignore"}))
-    
+
     def shadow_delete(self):
         """Publishes an empty message to the shadow delete topic to delete a device's shadow
 
