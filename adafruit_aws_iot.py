@@ -265,23 +265,39 @@ class MQTT_CLIENT:
         self.client.publish(topic, payload, qos=qos)
 
     # AWS IoT Device Shadow Service
-    def shadow_update(self, state_document):
+
+    def shadow_get_subscribe(self, qos=1):
+        """Subscribes to  device's shadow get response.
+        :param int qos: Optional quality of service level.
+
+        """
+        self.client.subscribe(self.shadow_topic+"/get/#", qos)
+
+    def shadow_subscribe(self, qos=1):
+        """Subscribes to all notifications on the device's shadow update topic.
+        :param int qos: Optional quality of service level.
+
+        """
+        self.client.subscribe(self.shadow_topic+"/update/#", qos)
+
+    def shadow_update(self, state_document, qos=1):
         """Publishes a request state document to update the device's shadow.
         :param json state_document: JSON-formatted state document.
+        :param int qos: Optional quality of service level.
 
         """
         topic = self.shadow_topic+"/update"
         print(topic)
-        self.client.publish(topic, state_document, qos=1)
+        self.client.publish(topic, state_document, qos)
     
     def shadow_get(self):
         """Publishes an empty message to shadow get topic to get the device's shadow.
 
         """
-        self.client.publish(self.shadow_topic+"/get", "ignore")
+        self.client.publish(self.shadow_topic+"/get", json.dumps({"message": "ignore"}))
     
     def shadow_delete(self):
         """Publishes an empty message to the shadow delete topic to delete a device's shadow
 
         """
-        self.client.publish(self.shadow_topic+"/delete", "ignore")
+        self.client.publish(self.shadow_topic+"/delete", json.dumps({"message": "delete"}))
