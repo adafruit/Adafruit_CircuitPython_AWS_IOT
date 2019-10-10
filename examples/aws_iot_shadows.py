@@ -118,7 +118,7 @@ client =  MQTT(socket,
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
 
-# Connect callback handlers to Google MQTT Client
+# Connect callback handlers to AWS IoT MQTT Client
 aws_iot.on_connect = connect
 aws_iot.on_disconnect = disconnect
 aws_iot.on_subscribe = subscribe
