@@ -5,7 +5,7 @@ import neopixel
 from adafruit_esp32spi import adafruit_esp32spi
 from adafruit_esp32spi import adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
-
+import json
 from adafruit_minimqtt import MQTT
 from adafruit_aws_iot import MQTT_CLIENT, AWS_IOT_ERROR
 
@@ -54,8 +54,7 @@ wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(esp, secrets, status_lig
 
 ### Code ###
 
-sub_topic = "circuitpython/outgoing"
-pub_topic = "circuitpython/incoming"
+topic = "circuitpython/aws"
 
 # Define callback methods which are called when events occur
 # pylint: disable=unused-argument, redefined-outer-name
@@ -65,9 +64,8 @@ def connect(client, userdata, flags, rc):
     print('Connected to MQTT Broker!')
     print('Flags: {0}\n RC: {1}'.format(flags, rc))
 
-    print("Subscribing to topic {}".format(sub_topic))
-    aws_iot.subscribe(sub_topic)
-
+    print("Subscribing to topic {}".format(topic))
+    aws_iot.subscribe(topic)
 
 def disconnect(client, userdata, rc):
     # This method is called when the client disconnects
@@ -78,8 +76,9 @@ def subscribe(client, userdata, topic, granted_qos):
     # This method is called when the client subscribes to a new topic.
     print('Subscribed to {0} with QOS level {1}'.format(topic, granted_qos))
 
-    print("Publishing to topic {}".format(pub_topic))
-    aws_iot.publish(pub_topic, "hello aws!")
+    # Publish some data to topic
+    aws_iot.publish(topic, "Hello from AWS IoT CircuitPython")
+
 
 def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a topic.
@@ -94,10 +93,10 @@ def message(client, topic, msg):
     print("Message from {}: {}".format(topic, msg))
 
 
-# Set Device Certificate
+# Set AWS Device Certificate
 esp.set_certificate(DEVICE_CERT)
 
-# Set Private Key
+# Set AWS RSA Private Key
 esp.set_private_key(DEVICE_KEY)
 
 # Connect to WiFi
@@ -105,12 +104,12 @@ print("Connecting to WiFi...")
 wifi.connect()
 print("Connected!")
 
-
 # Set up a new MiniMQTT Client
 client =  MQTT(socket,
                broker = secrets['broker'],
                client_id = secrets['client_id'],
-               network_manager = wifi)
+               network_manager = wifi,
+               log=True)
 
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
@@ -126,10 +125,10 @@ aws_iot.on_message = message
 print('Attempting to connect to %s'%client.broker)
 aws_iot.connect()
 
-# Pump the message loop forever, all events are
-# handled in their callback handlers
+# Pump the message loop forever, all events
+# are handled in their callback handlers
 # while True:
-#    aws_iot.loop()
+#   aws_iot.loop()
 
-# Attempt to loop forever and handle network disconnection
+# Attempt to loop forever and handle network interface
 aws_iot.loop_forever()
