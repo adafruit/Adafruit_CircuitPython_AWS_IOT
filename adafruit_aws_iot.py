@@ -66,9 +66,9 @@ class MQTT_CLIENT:
         else:
             raise TypeError("This class requires a preconfigured MiniMQTT object, \
                                 please create one.")
-        # TODO: Verify ESP32 co-processor firmware version <= 1.4.0 to support cert/key pairs.
-        # bytearray(b'1.4.0\x00')
-        #fw_ver = self.client.wifi.esp.firmware_version
+        # Verify nina-fw => 1.4.0
+        fw_semver_maj = bytes(self.client.wifi.esp.firmware_version).decode("utf-8")[2]
+        assert int(fw_semver_maj) >= 4, "Please update nina-fw to 1.4.0 or above."
         # Verify MiniMQTT client object configuration
         try:
             self.cid = self.client.client_id
