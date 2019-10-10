@@ -17,8 +17,8 @@ Amazon AWS IoT MQTT Client for CircuitPython.
 
 
 **Note**: This library requires version **>=1.4.0** of the `Adafruit fork of the Arduino NINA-W102 firmware <https://github.com/adafruit/nina-fw>`_
- (release version 1.4.0 or above) installed on your ESP32 Airlift/WiFi Co-Processor.
- 
+ installed on your ESP32 Airlift/WiFi Co-Processor.
+
 If you do not know how to do this, `visit the Adafruit Learning System guide for this topic... <https://learn.adafruit.com/upgrading-esp32-firmware>`_
 
 
