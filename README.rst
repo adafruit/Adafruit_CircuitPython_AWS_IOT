@@ -13,9 +13,13 @@ Introduction
     :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_AWS_IOT
     :alt: Build Status
 
-Amazon AWS IoT Client for CircuitPython. Uses the AWS MQTT Client.
+Amazon AWS IoT MQTT Client for CircuitPython.
 
-.. todo:: Add note about nina-fw 1.4.0 here
+
+**Note**: This library requires version **>=1.4.0** of the `Adafruit fork of the Arduino NINA-W102 firmware <https://github.com/adafruit/nina-fw>`_
+ (release version 1.4.0 or above) installed on your ESP32 Airlift/WiFi Co-Processor.
+ 
+If you do not know how to do this, `visit the Adafruit Learning System guide for this topic... <https://learn.adafruit.com/upgrading-esp32-firmware>`_
 
 
 Dependencies

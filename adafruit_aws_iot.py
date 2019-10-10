@@ -133,8 +133,7 @@ class MQTT_CLIENT:
 
     def connect(self, clean_session=True):
         """Connects to Amazon AWS IoT MQTT Broker with Client ID.
-        :param bool clean_session: Establishes a persistent/clean session with
-                                    AWS IoT's MQTT broker.
+        :param bool clean_session: Establishes a clean session with AWS broker.
 
         """
         try:
