@@ -79,7 +79,7 @@ class MQTT_CLIENT:
         # Shadow-interaction topic
         self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
         # Ensure set_certificate and set_private_key were run from ESP32SPI
-        assert self.client.wifi.esp.set_psk and self.client.wifi.esp.set_cert, "Certificate \
+        assert self.client.wifi.esp.set_psk and self.client.wifi.esp.set_crt, "Certificate \
             and private key must be set to your AWS Device Cert and Private Key."
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
         # https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
