@@ -18,12 +18,20 @@ except ImportError:
     print("WiFi secrets are kept in secrets.py, please add them there!")
     raise
 
-# Get device certificate and private key from a certificates.py file
+# Get device certificate
 try:
-    from certificates import DEVICE_CERT, DEVICE_KEY
+    with open("aws_cert.pem.crt", "rb") as f:
+        DEVICE_CERT = f.read()
 except ImportError:
-    print("Certificate and private key data is kept in certificates.py, \
-           please add them there!")
+    print("Certificate (aws_cert.pem.crt) not found on CIRCUITPY filesystem.")
+    raise
+
+# Get device private key
+try:
+    with open("private.pem.key", "rb") as f:
+        DEVICE_KEY = f.read()
+except ImportError:
+    print("Certificate (private.pem.key) not found on CIRCUITPY filesystem.")
     raise
 
 # If you are using a board with pre-defined ESP32 Pins:
