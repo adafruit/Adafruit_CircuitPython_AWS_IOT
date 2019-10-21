@@ -66,9 +66,6 @@ class MQTT_CLIENT:
         else:
             raise TypeError("This class requires a preconfigured MiniMQTT object, \
                                 please create one.")
-        # Verify nina-fw => 1.4.0
-        fw_semver_maj = bytes(self.client.wifi.esp.firmware_version).decode("utf-8")[2]
-        assert int(fw_semver_maj) >= 4, "Please update nina-fw to 1.4.0 or above."
         # Verify MiniMQTT client object configuration
         try:
             self.cid = self.client.client_id
@@ -78,9 +75,6 @@ class MQTT_CLIENT:
                                 as the Client ID.")
         # Shadow-interaction topic
         self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
-        # Ensure set_certificate and set_private_key were run from ESP32SPI
-        assert self.client.wifi.esp.set_psk and self.client.wifi.esp.set_crt, "Certificate \
-            and private key must be set to your AWS Device Cert and Private Key."
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
         # https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
         assert 30 <= keep_alive <= 1200, "Keep_Alive timer \
