@@ -48,10 +48,14 @@ spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
 
 # Verify nina-fw version >= 1.4.0
-assert int(bytes(esp.firmware_version).decode("utf-8")[2]) >= 4, "Please update nina-fw to >=1.4.0."
+assert (
+    int(bytes(esp.firmware_version).decode("utf-8")[2]) >= 4
+), "Please update nina-fw to >=1.4.0."
 
 # Use below for Most Boards
-status_light = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2) # Uncomment for Most Boards
+status_light = neopixel.NeoPixel(
+    board.NEOPIXEL, 1, brightness=0.2
+)  # Uncomment for Most Boards
 # Uncomment below for ItsyBitsy M4
 # status_light = dotstar.DotStar(board.APA102_SCK, board.APA102_MOSI, 1, brightness=0.2)
 # Uncomment below for an externally defined RGB LED
@@ -72,34 +76,39 @@ topic = "circuitpython/aws"
 def connect(client, userdata, flags, rc):
     # This function will be called when the client is connected
     # successfully to the broker.
-    print('Connected to MQTT Broker!')
-    print('Flags: {0}\n RC: {1}'.format(flags, rc))
+    print("Connected to MQTT Broker!")
+    print("Flags: {0}\n RC: {1}".format(flags, rc))
 
     # Subscribe to topic circuitpython/aws
     print("Subscribing to topic {}".format(topic))
     aws_iot.subscribe(topic)
 
+
 def disconnect(client, userdata, rc):
     # This method is called when the client disconnects
     # from the broker.
-    print('Disconnected from MQTT Broker!')
+    print("Disconnected from MQTT Broker!")
+
 
 def subscribe(client, userdata, topic, granted_qos):
     # This method is called when the client subscribes to a new topic.
-    print('Subscribed to {0} with QOS level {1}'.format(topic, granted_qos))
+    print("Subscribed to {0} with QOS level {1}".format(topic, granted_qos))
 
     # Create a json-formatted message
     message = {"message": "Hello from AWS IoT CircuitPython"}
     # Publish message to topic
     aws_iot.publish(topic, json.dumps(message))
 
+
 def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a topic.
-    print('Unsubscribed from {0} with PID {1}'.format(topic, pid))
+    print("Unsubscribed from {0} with PID {1}".format(topic, pid))
+
 
 def publish(client, userdata, topic, pid):
     # This method is called when the client publishes data to a topic.
-    print('Published to {0} with PID {1}'.format(topic, pid))
+    print("Published to {0} with PID {1}".format(topic, pid))
+
 
 def message(client, topic, msg):
     # This method is called when the client receives data from a topic.
@@ -118,11 +127,13 @@ wifi.connect()
 print("Connected!")
 
 # Set up a new MiniMQTT Client
-client =  MQTT(socket,
-               broker = secrets['broker'],
-               client_id = secrets['client_id'],
-               network_manager = wifi,
-               log=True)
+client = MQTT(
+    socket,
+    broker=secrets["broker"],
+    client_id=secrets["client_id"],
+    network_manager=wifi,
+    log=True,
+)
 
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
@@ -135,7 +146,7 @@ aws_iot.on_unsubscribe = unsubscribe
 aws_iot.on_publish = publish
 aws_iot.on_message = message
 
-print('Attempting to connect to %s'%client.broker)
+print("Attempting to connect to %s" % client.broker)
 aws_iot.connect()
 
 # Pump the message loop forever, all events
