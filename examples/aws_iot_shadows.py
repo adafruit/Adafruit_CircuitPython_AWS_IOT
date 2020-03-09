@@ -48,10 +48,14 @@ spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
 
 # Verify nina-fw version >= 1.4.0
-assert int(bytes(esp.firmware_version).decode("utf-8")[2]) >= 4, "Please update nina-fw to >=1.4.0."
+assert (
+    int(bytes(esp.firmware_version).decode("utf-8")[2]) >= 4
+), "Please update nina-fw to >=1.4.0."
 
 # Use below for Most Boards
-status_light = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2) # Uncomment for Most Boards
+status_light = neopixel.NeoPixel(
+    board.NEOPIXEL, 1, brightness=0.2
+)  # Uncomment for Most Boards
 # Uncomment below for ItsyBitsy M4
 # status_light = dotstar.DotStar(board.APA102_SCK, board.APA102_MOSI, 1, brightness=0.2)
 # Uncomment below for an externally defined RGB LED
@@ -70,24 +74,26 @@ wifi = adafruit_esp32spi_wifimanager.ESPSPI_WiFiManager(esp, secrets, status_lig
 def connect(client, userdata, flags, rc):
     # This function will be called when the client is connected
     # successfully to the broker.
-    print('Connected to MQTT Broker!')
-    print('Flags: {0}\n RC: {1}'.format(flags, rc))
+    print("Connected to MQTT Broker!")
+    print("Flags: {0}\n RC: {1}".format(flags, rc))
 
     # Subscribe client to all shadow updates
     print("Subscribing to shadow updates...")
     aws_iot.shadow_subscribe()
 
+
 def disconnect(client, userdata, rc):
     # This method is called when the client disconnects
     # from the broker.
-    print('Disconnected from MQTT Broker!')
+    print("Disconnected from MQTT Broker!")
+
 
 def subscribe(client, userdata, topic, granted_qos):
     # This method is called when the client subscribes to a new topic.
-    print('Subscribed to {0} with QOS level {1}'.format(topic, granted_qos))
+    print("Subscribed to {0} with QOS level {1}".format(topic, granted_qos))
 
     # Update device shadow with example JSON payload
-    payload = {"state":{"reported":{"moisture":50,"temp":30}}}
+    payload = {"state": {"reported": {"moisture": 50, "temp": 30}}}
     aws_iot.shadow_update(json.dumps(payload))
 
     # We can also retrieve the shadow from AWS IoT,
@@ -96,17 +102,21 @@ def subscribe(client, userdata, topic, granted_qos):
     # or delete the shadow
     # aws_iot.shadow_delete()
 
+
 def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a topic.
-    print('Unsubscribed from {0} with PID {1}'.format(topic, pid))
+    print("Unsubscribed from {0} with PID {1}".format(topic, pid))
+
 
 def publish(client, userdata, topic, pid):
     # This method is called when the client publishes data to a topic.
-    print('Published to {0} with PID {1}'.format(topic, pid))
+    print("Published to {0} with PID {1}".format(topic, pid))
+
 
 def message(client, topic, msg):
     # This method is called when the client receives data from a topic.
     print("Message from {}: {}".format(topic, msg))
+
 
 # Set AWS Device Certificate
 esp.set_certificate(DEVICE_CERT)
@@ -121,11 +131,13 @@ print("Connected!")
 
 
 # Set up a new MiniMQTT Client
-client =  MQTT(socket,
-               broker = secrets['broker'],
-               client_id = secrets['client_id'],
-               network_manager = wifi,
-               log=True)
+client = MQTT(
+    socket,
+    broker=secrets["broker"],
+    client_id=secrets["client_id"],
+    network_manager=wifi,
+    log=True,
+)
 
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
@@ -138,7 +150,7 @@ aws_iot.on_unsubscribe = unsubscribe
 aws_iot.on_publish = publish
 aws_iot.on_message = message
 
-print('Attempting to connect to %s'%client.broker)
+print("Attempting to connect to %s" % client.broker)
 aws_iot.connect()
 
 # Pump the message loop forever, all events

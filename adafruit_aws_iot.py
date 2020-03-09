@@ -49,8 +49,10 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_AWS_IOT.git"
 
 class AWS_IOT_ERROR(Exception):
     """Exception raised on MQTT API return-code errors."""
+
     # pylint: disable=unnecessary-pass
     pass
+
 
 class MQTT_CLIENT:
     """Client for interacting with Amazon AWS IoT MQTT API.
@@ -60,24 +62,33 @@ class MQTT_CLIENT:
                           Provided interval must be 30 <= keep_alive <= 1200.
 
     """
+
     def __init__(self, mmqttclient, keep_alive=30):
         if "MQTT" in str(type(mmqttclient)):
             self.client = mmqttclient
         else:
-            raise TypeError("This class requires a preconfigured MiniMQTT object, \
-                                please create one.")
+            raise TypeError(
+                "This class requires a preconfigured MiniMQTT object, \
+                                please create one."
+            )
         # Verify MiniMQTT client object configuration
         try:
             self.cid = self.client.client_id
-            assert self.cid[0] != "$", "Client ID can not start with restricted client ID prefix $."
+            assert (
+                self.cid[0] != "$"
+            ), "Client ID can not start with restricted client ID prefix $."
         except:
-            raise TypeError("You must provide MiniMQTT with your AWS IoT Device's Identifier \
-                                as the Client ID.")
+            raise TypeError(
+                "You must provide MiniMQTT with your AWS IoT Device's Identifier \
+                                as the Client ID."
+            )
         # Shadow-interaction topic
         self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
         # https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
-        assert 30 <= keep_alive <= 1200, "Keep_Alive timer \
+        assert (
+            30 <= keep_alive <= 1200
+        ), "Keep_Alive timer \
             interval must be between 30 and 1200 seconds"
         self.keep_alive = keep_alive
         # User-defined MQTT callback methods must be init'd to None
@@ -100,7 +111,6 @@ class MQTT_CLIENT:
     def __exit__(self, exception_type, exception_value, traceback):
         self.disconnect()
 
-
     @property
     def is_connected(self):
         """Returns if MQTT_CLIENT is connected to AWS IoT MQTT Broker
@@ -115,7 +125,7 @@ class MQTT_CLIENT:
         try:
             self.client.disconnect()
         except MMQTTException as error:
-            raise AWS_IOT_ERROR('Error disconnecting with AWS IoT: ', error)
+            raise AWS_IOT_ERROR("Error disconnecting with AWS IoT: ", error)
         self.connected_to_aws = False
         # Reset user-defined callback methods to None
         self.on_connect = None
@@ -133,7 +143,7 @@ class MQTT_CLIENT:
         try:
             self.client.connect(clean_session)
         except MMQTTException as error:
-            raise AWS_IOT_ERROR('Error connecting to AWS IoT: ', error)
+            raise AWS_IOT_ERROR("Error connecting to AWS IoT: ", error)
         self.connected_to_aws = True
 
     # MiniMQTT Callback Handlers
@@ -265,30 +275,34 @@ class MQTT_CLIENT:
         :param int qos: Optional quality of service level.
 
         """
-        self.client.subscribe(self.shadow_topic+"/get/#", qos)
+        self.client.subscribe(self.shadow_topic + "/get/#", qos)
 
     def shadow_subscribe(self, qos=1):
         """Subscribes to all notifications on the device's shadow update topic.
         :param int qos: Optional quality of service level.
 
         """
-        self.client.subscribe(self.shadow_topic+"/update/#", qos)
+        self.client.subscribe(self.shadow_topic + "/update/#", qos)
 
     def shadow_update(self, document):
         """Publishes a request state document to update the device's shadow.
         :param json state_document: JSON-formatted state document.
 
         """
-        self.client.publish(self.shadow_topic+"/update", document)
+        self.client.publish(self.shadow_topic + "/update", document)
 
     def shadow_get(self):
         """Publishes an empty message to shadow get topic to get the device's shadow.
 
         """
-        self.client.publish(self.shadow_topic+"/get", json.dumps({"message": "ignore"}))
+        self.client.publish(
+            self.shadow_topic + "/get", json.dumps({"message": "ignore"})
+        )
 
     def shadow_delete(self):
         """Publishes an empty message to the shadow delete topic to delete a device's shadow
 
         """
-        self.client.publish(self.shadow_topic+"/delete", json.dumps({"message": "delete"}))
+        self.client.publish(
+            self.shadow_topic + "/delete", json.dumps({"message": "delete"})
+        )
