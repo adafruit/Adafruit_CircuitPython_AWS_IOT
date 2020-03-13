@@ -135,6 +135,15 @@ class MQTT_CLIENT:
         self.on_unsubscribe = None
         self.client.deinit()
 
+    def reconnect(self):
+        """Reconnects to the AWS IoT MQTT Broker
+
+        """
+        try:
+            self.client.reconnect()
+        except MMQTTException as error:
+            raise AWS_IOT_ERROR("Error re-connecting to AWS IoT:", error)
+
     def connect(self, clean_session=True):
         """Connects to Amazon AWS IoT MQTT Broker with Client ID.
         :param bool clean_session: Establishes a clean session with AWS broker.
