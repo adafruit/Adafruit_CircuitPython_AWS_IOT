@@ -1,3 +1,4 @@
+import time
 import json
 import board
 import busio
@@ -6,7 +7,7 @@ import neopixel
 from adafruit_esp32spi import adafruit_esp32spi
 from adafruit_esp32spi import adafruit_esp32spi_wifimanager
 import adafruit_esp32spi.adafruit_esp32spi_socket as socket
-from adafruit_minimqtt import MQTT
+import adafruit_minimqtt as MQTT
 from adafruit_aws_iot import MQTT_CLIENT
 
 ### WiFi ###
@@ -126,14 +127,12 @@ print("Connecting to WiFi...")
 wifi.connect()
 print("Connected!")
 
+# Initialize MQTT interface with the esp interface
+MQTT.set_socket(socket, esp)
+
 # Set up a new MiniMQTT Client
-client = MQTT(
-    socket,
-    broker=secrets["broker"],
-    client_id=secrets["client_id"],
-    network_manager=wifi,
-    log=True,
-)
+client = MQTT.MQTT(broker=secrets["broker"],
+                   client_id=secrets["client_id"])
 
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
@@ -154,5 +153,15 @@ aws_iot.connect()
 # while True:
 #   aws_iot.loop()
 
-# Attempt to loop forever and handle network interface
-aws_iot.loop_forever()
+# Start a blocking message loop...
+# NOTE: NO code below this loop will execute
+# NOTE: Network reconnection is handled within this loop
+while True:
+    try:
+        aws_iot.loop()
+    except (ValueError, RuntimeError) as e:
+        print("Failed to get data, retrying\n", e)
+        wifi.reset()
+        aws_iot.reconnect()
+        continue
+    time.sleep(1)
