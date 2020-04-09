@@ -131,8 +131,7 @@ print("Connected!")
 MQTT.set_socket(socket, esp)
 
 # Set up a new MiniMQTT Client
-client = MQTT.MQTT(broker=secrets["broker"],
-                   client_id=secrets["client_id"])
+client = MQTT.MQTT(broker=secrets["broker"], client_id=secrets["client_id"])
 
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
