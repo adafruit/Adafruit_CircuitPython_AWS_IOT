@@ -41,7 +41,7 @@ Implementation Notes
 
 """
 import json
-from adafruit_minimqtt import MMQTTException
+from adafruit_minimqtt.adafruit_minimqtt import MMQTTException
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_AWS_IOT.git"
