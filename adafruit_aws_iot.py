@@ -77,11 +77,11 @@ class MQTT_CLIENT:
             assert (
                 self.cid[0] != "$"
             ), "Client ID can not start with restricted client ID prefix $."
-        except:
+        except Exception as ex:
             raise TypeError(
                 "You must provide MiniMQTT with your AWS IoT Device's Identifier \
                                 as the Client ID."
-            )
+            ) from ex
         # Shadow-interaction topic
         self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
@@ -125,7 +125,7 @@ class MQTT_CLIENT:
         try:
             self.client.disconnect()
         except MMQTTException as error:
-            raise AWS_IOT_ERROR("Error disconnecting with AWS IoT: ", error)
+            raise AWS_IOT_ERROR("Error disconnecting with AWS IoT: ", error) from error
         self.connected_to_aws = False
         # Reset user-defined callback methods to None
         self.on_connect = None
@@ -142,7 +142,7 @@ class MQTT_CLIENT:
         try:
             self.client.reconnect()
         except MMQTTException as error:
-            raise AWS_IOT_ERROR("Error re-connecting to AWS IoT:", error)
+            raise AWS_IOT_ERROR("Error re-connecting to AWS IoT:", error) from error
 
     def connect(self, clean_session=True):
         """Connects to Amazon AWS IoT MQTT Broker with Client ID.
@@ -152,7 +152,7 @@ class MQTT_CLIENT:
         try:
             self.client.connect(clean_session)
         except MMQTTException as error:
-            raise AWS_IOT_ERROR("Error connecting to AWS IoT: ", error)
+            raise AWS_IOT_ERROR("Error connecting to AWS IoT: ", error) from error
         self.connected_to_aws = True
 
     # MiniMQTT Callback Handlers
