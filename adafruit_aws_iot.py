@@ -1,24 +1,7 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2019 Brent Rubell for Adafruit Industries
 #
-# Copyright (c) 2019 Brent Rubell for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 `adafruit_aws_iot`
 ================================================================================
@@ -113,15 +96,11 @@ class MQTT_CLIENT:
 
     @property
     def is_connected(self):
-        """Returns if MQTT_CLIENT is connected to AWS IoT MQTT Broker
-
-        """
+        """Returns if MQTT_CLIENT is connected to AWS IoT MQTT Broker"""
         return self.connected_to_aws
 
     def disconnect(self):
-        """Disconnects from Amazon AWS IoT MQTT Broker and de-initializes the MiniMQTT Client.
-
-        """
+        """Disconnects from Amazon AWS IoT MQTT Broker and de-initializes the MiniMQTT Client."""
         try:
             self.client.disconnect()
         except MMQTTException as error:
@@ -136,9 +115,7 @@ class MQTT_CLIENT:
         self.client.deinit()
 
     def reconnect(self):
-        """Reconnects to the AWS IoT MQTT Broker
-
-        """
+        """Reconnects to the AWS IoT MQTT Broker"""
         try:
             self.client.reconnect()
         except MMQTTException as error:
@@ -210,14 +187,13 @@ class MQTT_CLIENT:
 
     # pylint: disable=not-callable
     def _on_unsubscribe_mqtt(self, client, user_data, topic, pid):
-        """Runs when the client calls on_unsubscribe.
-        """
+        """Runs when the client calls on_unsubscribe."""
         if self.on_unsubscribe is not None:
             self.on_unsubscribe(self, user_data, topic, pid)
 
     # MiniMQTT Network Control Flow
     def loop(self):
-        """ Starts a synchronous message loop which maintains connection with AWS IoT.
+        """Starts a synchronous message loop which maintains connection with AWS IoT.
         Must be called within the keep_alive timeout specified to init.
         This method does not handle network connection/disconnection.
 
@@ -301,17 +277,13 @@ class MQTT_CLIENT:
         self.client.publish(self.shadow_topic + "/update", document)
 
     def shadow_get(self):
-        """Publishes an empty message to shadow get topic to get the device's shadow.
-
-        """
+        """Publishes an empty message to shadow get topic to get the device's shadow."""
         self.client.publish(
             self.shadow_topic + "/get", json.dumps({"message": "ignore"})
         )
 
     def shadow_delete(self):
-        """Publishes an empty message to the shadow delete topic to delete a device's shadow
-
-        """
+        """Publishes an empty message to the shadow delete topic to delete a device's shadow"""
         self.client.publish(
             self.shadow_topic + "/delete", json.dumps({"message": "delete"})
         )
