@@ -274,7 +274,7 @@ class MQTT_CLIENT:
 
         :param str topic: MQTT topic to publish to.
         :param payload: Data to publish to topic.  Must be able to be converted
-            to a string using `str()`
+            to a string using ``str()``
         :type payload: str|float|bytes
         :param int qos: Quality of service level for publishing
 
