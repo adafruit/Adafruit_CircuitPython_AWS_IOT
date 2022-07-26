@@ -1,7 +1,7 @@
 Introduction
 ============
 
-.. image:: https://readthedocs.org/projects/adafruit-circuitpython-aws_iot/badge/?version=latest
+.. image:: https://readthedocs.org/projects/circuitpython-aws-iot/badge/?version=latest
     :target: https://docs.circuitpython.org/projects/aws_iot/en/latest/
     :alt: Documentation Status
 
