@@ -7,9 +7,10 @@ import board
 import busio
 from digitalio import DigitalInOut
 import neopixel
+import adafruit_connection_manager
 from adafruit_esp32spi import adafruit_esp32spi
 from adafruit_esp32spi import adafruit_esp32spi_wifimanager
-import adafruit_esp32spi.adafruit_esp32spi_socket as socket
+import adafruit_esp32spi.adafruit_esp32spi_socket as pool
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from adafruit_aws_iot import MQTT_CLIENT
 
@@ -134,11 +135,15 @@ print("Connecting to WiFi...")
 wifi.connect()
 print("Connected!")
 
-# Initialize MQTT interface with the esp interface
-MQTT.set_socket(socket, esp)
+ssl_context = adafruit_connection_manager.create_fake_ssl_context(pool, esp)
 
 # Set up a new MiniMQTT Client
-client = MQTT.MQTT(broker=secrets["broker"], client_id=secrets["client_id"])
+client = MQTT.MQTT(
+    broker=secrets["broker"],
+    client_id=secrets["client_id"],
+    socket_pool=pool,
+    ssl_context=ssl_context,
+)
 
 # Initialize AWS IoT MQTT API Client
 aws_iot = MQTT_CLIENT(client)
