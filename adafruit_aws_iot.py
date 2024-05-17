@@ -237,13 +237,6 @@ class MQTT_CLIENT:
         if self.connected_to_aws:
             self.client.loop()
 
-    def loop_forever(self) -> None:
-        """Begins a blocking, asynchronous message loop.
-        This method handles network connection/disconnection.
-        """
-        if self.connected_to_aws:
-            self.client.loop_forever()
-
     @staticmethod
     def validate_topic(topic: str) -> None:
         """Validates if user-provided pub/sub topics adhere to AWS Service Limits.
