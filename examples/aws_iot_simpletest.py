@@ -138,6 +138,7 @@ ssl_context = adafruit_connection_manager.get_radio_ssl_context(esp)
 client = MQTT.MQTT(
     broker=secrets["broker"],
     client_id=secrets["client_id"],
+    is_ssl=True,
     socket_pool=pool,
     ssl_context=ssl_context,
 )
