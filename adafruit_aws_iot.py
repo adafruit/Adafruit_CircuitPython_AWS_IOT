@@ -227,6 +227,8 @@ class MQTT_CLIENT:
         Must be called within the keep_alive timeout specified to init.
         This method does not handle network connection/disconnection.
 
+        :param float timeout: client return after this timeout, in seconds.
+
         Example of "pumping" an AWS IoT message loop:
         ..code-block::python
 
