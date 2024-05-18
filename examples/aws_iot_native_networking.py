@@ -118,6 +118,6 @@ aws_iot.connect()
 # NOTE: NO code below this loop will execute
 # NOTE: Network reconnection is NOT handled within this loop
 while True:
-    aws_iot.loop()
+    aws_iot.loop(10)
 
     time.sleep(1)
