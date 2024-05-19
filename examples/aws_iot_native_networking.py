@@ -17,7 +17,6 @@ from adafruit_aws_iot import MQTT_CLIENT
 # "device_cert_path" - Path to the Device Certificate from AWS IoT ("<THING_NAME>.cert.pem")
 # "device_key_path" - Path to the RSA Private Key from AWS IoT ("<THING_NAME>.private.key")
 # "broker" - The endpoint for the AWS IoT broker ("<PREFIX>.iot.<REGION>.amazonaws.com")
-# "port" - The port for the "broker" above (8883)
 # "client_id" - The client id. Your device's Policy needs to allow this client ("basicPubSub")
 #
 # pylint: disable=no-name-in-module,wrong-import-order
@@ -93,9 +92,8 @@ ssl_context.load_cert_chain(
 # Set up a MiniMQTT Client
 mqtt_client = MQTT.MQTT(
     broker=secrets["broker"],
-    port=secrets["port"],
-    is_ssl=True,  # ssl is required
     client_id=secrets["client_id"],
+    is_ssl=True,
     socket_pool=pool,
     ssl_context=ssl_context,
 )
