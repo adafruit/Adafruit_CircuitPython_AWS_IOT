@@ -222,10 +222,12 @@ class MQTT_CLIENT:
             self.on_unsubscribe(self, user_data, topic, pid)
 
     # MiniMQTT Network Control Flow
-    def loop(self) -> None:
+    def loop(self, timeout: float = 0) -> None:
         """Starts a synchronous message loop which maintains connection with AWS IoT.
         Must be called within the keep_alive timeout specified to init.
         This method does not handle network connection/disconnection.
+
+        :param float timeout: client return after this timeout, in seconds.
 
         Example of "pumping" an AWS IoT message loop:
         ..code-block::python
@@ -235,14 +237,7 @@ class MQTT_CLIENT:
 
         """
         if self.connected_to_aws:
-            self.client.loop()
-
-    def loop_forever(self) -> None:
-        """Begins a blocking, asynchronous message loop.
-        This method handles network connection/disconnection.
-        """
-        if self.connected_to_aws:
-            self.client.loop_forever()
+            self.client.loop(timeout)
 
     @staticmethod
     def validate_topic(topic: str) -> None:

@@ -141,6 +141,7 @@ ssl_context = adafruit_connection_manager.get_radio_ssl_context(esp)
 client = MQTT.MQTT(
     broker=secrets["broker"],
     client_id=secrets["client_id"],
+    is_ssl=True,
     socket_pool=pool,
     ssl_context=ssl_context,
 )
@@ -162,14 +163,14 @@ aws_iot.connect()
 # Pump the message loop forever, all events
 # are handled in their callback handlers
 # while True:
-#   aws_iot.loop()
+#   aws_iot.loop(10)
 
 # Start a blocking message loop...
 # NOTE: NO code below this loop will execute
 # NOTE: Network reconnection is handled within this loop
 while True:
     try:
-        aws_iot.loop()
+        aws_iot.loop(10)
     except (ValueError, RuntimeError) as e:
         print("Failed to get data, retrying\n", e)
         wifi.reset()
