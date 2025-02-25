@@ -1,30 +1,32 @@
 # SPDX-FileCopyrightText: 2023 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
+from os import getenv
 import time
-import ssl
 import json
-import socketpool
 import wifi
+import adafruit_connection_manager
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from adafruit_aws_iot import MQTT_CLIENT
 
-# Add a secrets.py to your filesystem that has a dictionary called "secrets". DO NOT share that
-# file or commit it into Git or other source control. The "secrets" dictionary should have the
-# following keys:
-# "ssid" - Your WiFi ssid
-# "password" - Your WiFi password
-# "device_cert_path" - Path to the Device Certificate from AWS IoT ("<THING_NAME>.cert.pem")
-# "device_key_path" - Path to the RSA Private Key from AWS IoT ("<THING_NAME>.private.key")
-# "broker" - The endpoint for the AWS IoT broker ("<PREFIX>.iot.<REGION>.amazonaws.com")
-# "client_id" - The client id. Your device's Policy needs to allow this client ("basicPubSub")
-#
-# pylint: disable=no-name-in-module,wrong-import-order
-try:
-    from secrets import secrets
-except ImportError:
-    print("WiFi secrets are kept in secrets.py, please add them there!")
-    raise
+# Add a settings.toml to your filesystem. DO NOT share that file or commit it into
+# Git or other source control. The file should have the following settings:
+"""
+CIRCUITPY_WIFI_SSID="Your WiFi ssid"
+CIRCUITPY_WIFI_PASSWORD="Your WiFi password"
+device_cert_path="<THING_NAME>.cert.pem"  # Path to the Device Certificate from AWS IoT
+device_key_path="<THING_NAME>.private.key"  # Path to the RSA Private Key from AWS IoT
+broker="<PREFIX>.iot.<REGION>.amazonaws.com"  # The endpoint for the AWS IoT broker
+client_id="client_id"  # The client id. Your device's Policy needs to allow this client
+"""
+
+# Get WiFi details and AWS keys, ensure these are setup in settings.toml
+ssid = getenv("CIRCUITPY_WIFI_SSID")
+password = getenv("CIRCUITPY_WIFI_PASSWORD")
+device_cert_path = getenv("device_cert_path")
+device_key_path = getenv("device_key_path")
+broker = getenv("broker")
+client_id = getenv("client_id")
 
 ### Code ###
 
@@ -76,23 +78,21 @@ def message(client, topic, msg):
     print("Message from {}: {}".format(topic, msg))
 
 
-print("Connecting to %s" % secrets["ssid"])
-wifi.radio.connect(secrets["ssid"], secrets["password"])
-print("Connected to %s!" % secrets["ssid"])
+print(f"Connecting to {ssid}")
+wifi.radio.connect(ssid, password)
+print(f"Connected to {ssid}!")
 
 # Create a socket pool
-pool = socketpool.SocketPool(wifi.radio)
-ssl_context = ssl.create_default_context()
+pool = adafruit_connection_manager.get_radio_socketpool(wifi.radio)
+ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
 
 # Set AWS Device Certificate and AWS RSA Private Key
-ssl_context.load_cert_chain(
-    certfile=secrets["device_cert_path"], keyfile=secrets["device_key_path"]
-)
+ssl_context.load_cert_chain(certfile=device_cert_path, keyfile=device_key_path)
 
 # Set up a MiniMQTT Client
 mqtt_client = MQTT.MQTT(
-    broker=secrets["broker"],
-    client_id=secrets["client_id"],
+    broker=broker,
+    client_id=client_id,
     is_ssl=True,
     socket_pool=pool,
     ssl_context=ssl_context,
@@ -109,7 +109,7 @@ aws_iot.on_unsubscribe = unsubscribe
 aws_iot.on_publish = publish
 aws_iot.on_message = message
 
-print("Attempting to connect to %s" % mqtt_client.broker)
+print(f"Attempting to connect to {mqtt_client.broker}")
 aws_iot.connect()
 
 # Start a blocking message loop...
