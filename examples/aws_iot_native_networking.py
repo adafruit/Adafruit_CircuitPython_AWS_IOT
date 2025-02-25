@@ -9,16 +9,17 @@ import adafruit_connection_manager
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from adafruit_aws_iot import MQTT_CLIENT
 
-# Add a settings.toml to your filesystem. DO NOT share that
-# file or commit it into Git or other source control. The file  dictionary should have the
-# following settings:
-# CIRCUITPY_WIFI_SSID - Your WiFi ssid
-# CIRCUITPY_WIFI_PASSWORD - Your WiFi password
-# device_cert_path - Path to the Device Certificate from AWS IoT ("<THING_NAME>.cert.pem")
-# device_key_path - Path to the RSA Private Key from AWS IoT ("<THING_NAME>.private.key")
-# broker - The endpoint for the AWS IoT broker ("<PREFIX>.iot.<REGION>.amazonaws.com")
-# client_id - The client id. Your device's Policy needs to allow this client ("basicPubSub")
-#
+# Add a settings.toml to your filesystem. DO NOT share that file or commit it into
+# Git or other source control. The file should have the following settings:
+"""
+CIRCUITPY_WIFI_SSID="Your WiFi ssid"
+CIRCUITPY_WIFI_PASSWORD="Your WiFi password"
+device_cert_path="<THING_NAME>.cert.pem"  # Path to the Device Certificate from AWS IoT
+device_key_path="<THING_NAME>.private.key"  # Path to the RSA Private Key from AWS IoT
+broker="<PREFIX>.iot.<REGION>.amazonaws.com"  # The endpoint for the AWS IoT broker
+client_id="client_id"  # The client id. Your device's Policy needs to allow this client
+"""
+
 # Get WiFi details and AWS keys, ensure these are setup in settings.toml
 ssid = getenv("CIRCUITPY_WIFI_SSID")
 password = getenv("CIRCUITPY_WIFI_PASSWORD")
