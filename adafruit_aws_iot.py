@@ -23,12 +23,15 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
+
 import json
+
 from adafruit_minimqtt.adafruit_minimqtt import MMQTTException
 
 try:
-    from typing import Optional, Type, Union
     from types import TracebackType
+    from typing import Optional, Type, Union
+
     from adafruit_minimqtt.adafruit_minimqtt import MQTT
 except ImportError:
     pass
@@ -40,7 +43,6 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_AWS_IOT.git"
 class AWS_IOT_ERROR(Exception):
     """Exception raised on MQTT API return-code errors."""
 
-    # pylint: disable=unnecessary-pass
     pass
 
 
@@ -64,21 +66,17 @@ class MQTT_CLIENT:
         # Verify MiniMQTT client object configuration
         try:
             self.cid = self.client.client_id
-            assert (
-                self.cid[0] != "$"
-            ), "Client ID can not start with restricted client ID prefix $."
+            assert self.cid[0] != "$", "Client ID can not start with restricted client ID prefix $."
         except Exception as ex:
             raise TypeError(
                 "You must provide MiniMQTT with your AWS IoT Device's Identifier \
                                 as the Client ID."
             ) from ex
         # Shadow-interaction topic
-        self.shadow_topic = "$aws/things/{}/shadow".format(self.cid)
+        self.shadow_topic = f"$aws/things/{self.cid}/shadow"
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
         # https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
-        assert (
-            30 <= keep_alive <= 1200
-        ), "Keep_Alive timer \
+        assert 30 <= keep_alive <= 1200, "Keep_Alive timer \
             interval must be between 30 and 1200 seconds"
         self.keep_alive = keep_alive
         # User-defined MQTT callback methods must be init'd to None
@@ -146,10 +144,7 @@ class MQTT_CLIENT:
         self.connected_to_aws = True
 
     # MiniMQTT Callback Handlers
-    # pylint: disable=not-callable, unused-argument
-    def _on_connect_mqtt(
-        self, client: MQTT, userdata: str, flag: int, ret_code: int
-    ) -> None:
+    def _on_connect_mqtt(self, client: MQTT, userdata: str, flag: int, ret_code: int) -> None:
         """Runs when code calls on_connect.
 
         :param ~MQTT.MQTT client: MiniMQTT client object.
@@ -163,10 +158,7 @@ class MQTT_CLIENT:
         if self.on_connect is not None:
             self.on_connect(self, userdata, flag, ret_code)
 
-    # pylint: disable=not-callable, unused-argument
-    def _on_disconnect_mqtt(
-        self, client: MQTT, userdata: str, flag: int, ret_code: int
-    ) -> None:
+    def _on_disconnect_mqtt(self, client: MQTT, userdata: str, flag: int, ret_code: int) -> None:
         """Runs when code calls on_disconnect.
 
         :param ~MQTT.MQTT client: MiniMQTT client object.
@@ -180,7 +172,6 @@ class MQTT_CLIENT:
         if self.on_connect is not None:
             self.on_connect(self, userdata, flag, ret_code)
 
-    # pylint: disable=not-callable
     def _on_message_mqtt(self, client: MQTT, topic: str, payload: str) -> None:
         """Runs when the client calls on_message.
 
@@ -192,10 +183,7 @@ class MQTT_CLIENT:
         if self.on_message is not None:
             self.on_message(self, topic, payload)
 
-    # pylint: disable=not-callable
-    def _on_subscribe_mqtt(
-        self, client: MQTT, user_data: str, topic: int, qos: int
-    ) -> None:
+    def _on_subscribe_mqtt(self, client: MQTT, user_data: str, topic: int, qos: int) -> None:
         """Runs when the client calls on_subscribe.
 
         :param ~MQTT.MQTT client: MiniMQTT client object.
@@ -207,10 +195,7 @@ class MQTT_CLIENT:
         if self.on_subscribe is not None:
             self.on_subscribe(self, user_data, topic, qos)
 
-    # pylint: disable=not-callable
-    def _on_unsubscribe_mqtt(
-        self, client: MQTT, user_data: str, topic: str, pid: int
-    ) -> None:
+    def _on_unsubscribe_mqtt(self, client: MQTT, user_data: str, topic: str, pid: int) -> None:
         """Runs when the client calls on_unsubscribe.
 
         :param ~MQTT.MQTT client: MiniMQTT client object.
@@ -262,9 +247,7 @@ class MQTT_CLIENT:
         self.validate_topic(topic)
         self.client.subscribe(topic, qos)
 
-    def publish(
-        self, topic: str, payload: Union[str, float, bytes], qos: int = 1
-    ) -> None:
+    def publish(self, topic: str, payload: Union[str, float, bytes], qos: int = 1) -> None:
         """Publishes to a AWS IoT Topic.
 
         :param str topic: MQTT topic to publish to.
@@ -306,13 +289,9 @@ class MQTT_CLIENT:
     def shadow_get(self) -> None:
         """Publishes an empty message to shadow get topic to get the device's shadow."""
 
-        self.client.publish(
-            self.shadow_topic + "/get", json.dumps({"message": "ignore"})
-        )
+        self.client.publish(self.shadow_topic + "/get", json.dumps({"message": "ignore"}))
 
     def shadow_delete(self) -> None:
         """Publishes an empty message to the shadow delete topic to delete a device's shadow"""
 
-        self.client.publish(
-            self.shadow_topic + "/delete", json.dumps({"message": "delete"})
-        )
+        self.client.publish(self.shadow_topic + "/delete", json.dumps({"message": "delete"}))

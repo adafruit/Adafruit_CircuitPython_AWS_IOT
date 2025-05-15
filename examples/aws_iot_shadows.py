@@ -1,17 +1,18 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-from os import getenv
-import time
 import json
+import time
+from os import getenv
+
+import adafruit_connection_manager
+import adafruit_minimqtt.adafruit_minimqtt as MQTT
 import board
 import busio
-from digitalio import DigitalInOut
 import neopixel
-import adafruit_connection_manager
-from adafruit_esp32spi import adafruit_esp32spi
-from adafruit_esp32spi import adafruit_esp32spi_wifimanager
-import adafruit_minimqtt.adafruit_minimqtt as MQTT
+from adafruit_esp32spi import adafruit_esp32spi, adafruit_esp32spi_wifimanager
+from digitalio import DigitalInOut
+
 from adafruit_aws_iot import MQTT_CLIENT
 
 # Get WiFi details and AWS keys, ensure these are setup in settings.toml
@@ -52,14 +53,10 @@ spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
 
 # Verify nina-fw version >= 1.4.0
-assert (
-    int(bytes(esp.firmware_version).decode("utf-8")[2]) >= 4
-), "Please update nina-fw to >=1.4.0."
+assert int(bytes(esp.firmware_version).decode("utf-8")[2]) >= 4, "Please update nina-fw to >=1.4.0."
 
 # Use below for Most Boards
-status_pixel = neopixel.NeoPixel(
-    board.NEOPIXEL, 1, brightness=0.2
-)  # Uncomment for Most Boards
+status_pixel = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)  # Uncomment for Most Boards
 # Uncomment below for ItsyBitsy M4
 # status_pixel = dotstar.DotStar(board.APA102_SCK, board.APA102_MOSI, 1, brightness=0.2)
 # Uncomment below for an externally defined RGB LED
@@ -69,20 +66,17 @@ status_pixel = neopixel.NeoPixel(
 # GREEN_LED = PWMOut.PWMOut(esp, 27)
 # BLUE_LED = PWMOut.PWMOut(esp, 25)
 # status_pixel = adafruit_rgbled.RGBLED(RED_LED, BLUE_LED, GREEN_LED)
-wifi = adafruit_esp32spi_wifimanager.WiFiManager(
-    esp, ssid, password, status_pixel=status_pixel
-)
+wifi = adafruit_esp32spi_wifimanager.WiFiManager(esp, ssid, password, status_pixel=status_pixel)
 
 ### Code ###
 
 
 # Define callback methods which are called when events occur
-# pylint: disable=unused-argument, redefined-outer-name
 def connect(client, userdata, flags, rc):
     # This function will be called when the client is connected
     # successfully to the broker.
     print("Connected to MQTT Broker!")
-    print("Flags: {0}\n RC: {1}".format(flags, rc))
+    print(f"Flags: {flags}\n RC: {rc}")
 
     # Subscribe client to all shadow updates
     print("Subscribing to shadow updates...")
@@ -97,7 +91,7 @@ def disconnect(client, userdata, rc):
 
 def subscribe(client, userdata, topic, granted_qos):
     # This method is called when the client subscribes to a new topic.
-    print("Subscribed to {0} with QOS level {1}".format(topic, granted_qos))
+    print(f"Subscribed to {topic} with QOS level {granted_qos}")
 
     # Update device shadow with example JSON payload
     payload = {"state": {"reported": {"moisture": 50, "temp": 30}}}
@@ -112,17 +106,17 @@ def subscribe(client, userdata, topic, granted_qos):
 
 def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a topic.
-    print("Unsubscribed from {0} with PID {1}".format(topic, pid))
+    print(f"Unsubscribed from {topic} with PID {pid}")
 
 
 def publish(client, userdata, topic, pid):
     # This method is called when the client publishes data to a topic.
-    print("Published to {0} with PID {1}".format(topic, pid))
+    print(f"Published to {topic} with PID {pid}")
 
 
 def message(client, topic, msg):
     # This method is called when the client receives data from a topic.
-    print("Message from {}: {}".format(topic, msg))
+    print(f"Message from {topic}: {msg}")
 
 
 # Set AWS Device Certificate
