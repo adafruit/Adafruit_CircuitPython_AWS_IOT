@@ -76,8 +76,10 @@ class MQTT_CLIENT:
         self.shadow_topic = f"$aws/things/{self.cid}/shadow"
         # keep_alive timer must be between 30 <= keep alive interval <= 1200 seconds
         # https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
-        assert 30 <= keep_alive <= 1200, "Keep_Alive timer \
+        assert 30 <= keep_alive <= 1200, (
+            "Keep_Alive timer \
             interval must be between 30 and 1200 seconds"
+        )
         self.keep_alive = keep_alive
         # User-defined MQTT callback methods must be init'd to None
         self.on_connect = None
